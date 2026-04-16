@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>BestMove | 売れるアイデア、ここに。商品企画・マーケ施策立案AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // NECのVIガイドラインを意識した知的で洗練されたブルー系
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af', // メインのNEC Blueイメージ
+                            900: '#1e3a8a',
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            800: '#1f2937',
+                            900: '#111827',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans JP"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            color: #1f2937;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* 柔らかな曲線とシャープな直線を組み合わせたデザイン要素 */
+        .rounded-brand {
+            border-radius: 0.5rem 0.5rem 2rem 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+    <!-- パスワード認証画面 -->
+    <div id="auth-gate" style="position:fixed;inset:0;z-index:9999;background:#111827;display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;color:#fff;font-family:'Noto Sans JP',sans-serif;">
+            <div style="margin-bottom:24px;">
+                <span style="color:#1e40af;font-family:Arial,sans-serif;font-weight:900;font-size:28px;">NEC</span>
+                <span style="color:#9ca3af;margin:0 8px;">|</span>
+                <span style="font-weight:700;font-size:22px;">BestMove</span>
+            </div>
+            <p style="color:#9ca3af;font-size:14px;margin-bottom:20px;">ワイヤーフレーム閲覧用（関係者限定）</p>
+            <input id="auth-input" type="password" placeholder="パスワードを入力"
+                style="padding:12px 20px;border:2px solid #4b5563;border-radius:6px;background:#1f2937;color:#fff;font-size:16px;width:260px;outline:none;text-align:center;"
+                onkeydown="if(event.key==='Enter')document.getElementById('auth-btn').click()">
+            <br>
+            <button id="auth-btn" onclick="checkAuth()"
+                style="margin-top:12px;padding:12px 40px;background:#1e40af;color:#fff;border:none;border-radius:6px;font-weight:700;font-size:15px;cursor:pointer;">
+                閲覧する
+            </button>
+            <p id="auth-error" style="color:#ef4444;font-size:13px;margin-top:12px;display:none;">パスワードが正しくありません</p>
+        </div>
+    </div>
+    <script>
+        function checkAuth(){
+            var h='3b546614344f894f49a1c2a8020c376f6a815063d5569660445bdb0d235c8e33';
+            var input=document.getElementById('auth-input').value;
+            crypto.subtle.digest('SHA-256',new TextEncoder().encode(input)).then(function(buf){
+                var hash=Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+                if(hash===h){
+                    document.getElementById('auth-gate').style.display='none';
+                    sessionStorage.setItem('bestmove-fabel-auth','1');
+                }else{
+                    document.getElementById('auth-error').style.display='block';
+                    document.getElementById('auth-input').style.borderColor='#ef4444';
+                }
+            });
+        }
+        if(sessionStorage.getItem('bestmove-fabel-auth')==='1'){
+            document.getElementById('auth-gate').style.display='none';
+        }
+    </script>
+
+    <!-- バージョン切替バー（レビュー用） -->
+    <div style="position:fixed;bottom:20px;right:20px;z-index:9998;background:#111827;border:2px solid #1e40af;border-radius:8px;padding:10px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-family:'Noto Sans JP',sans-serif;font-size:11px;">
+        <div style="color:#9ca3af;font-weight:700;margin-bottom:6px;font-size:10px;">TOP バージョン切替</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;max-width:260px;">
+            <a href="index.html" style="padding:6px 10px;background:#374151;color:#fff;border-radius:4px;text-decoration:none;font-weight:700;border:1px solid #4b5563;">忠実</a>
+            <a href="pattern1.html" style="padding:6px 10px;background:#374151;color:#fff;border-radius:4px;text-decoration:none;font-weight:700;border:1px solid #4b5563;">パターン1</a>
+            <a href="pattern2.html" style="padding:6px 10px;background:#1e40af;color:#fff;border-radius:4px;text-decoration:none;font-weight:700;">パターン2</a>
+            <a href="fusion.html" style="padding:6px 10px;background:#374151;color:#fff;border-radius:4px;text-decoration:none;font-weight:700;border:1px solid #4b5563;">融合</a>
+        </div>
+    </div>
+
+
+    <!-- Header -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-md z-50 border-b border-gray-100 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <img src="BM_logo.png" alt="BestMove ロゴ" class="h-8 md:h-10 w-auto object-contain">
+                </div>
+                
+                <!-- Desktop Nav -->
+                <nav class="hidden lg:flex items-center space-x-4 xl:space-x-6">
+                    <a href="#" class="text-sm font-medium text-gray-600 hover:text-primary-800 transition whitespace-nowrap">BestMoveの秘密</a>
+                    <a href="#" class="text-sm font-medium text-gray-600 hover:text-primary-800 transition whitespace-nowrap">機能</a>
+                    <a href="#" class="text-sm font-medium text-gray-600 hover:text-primary-800 transition whitespace-nowrap">契約までの流れ</a>
+                    <a href="#" class="text-sm font-medium text-gray-600 hover:text-primary-800 transition whitespace-nowrap">事例</a>
+                    <a href="#" class="text-sm font-medium text-gray-600 hover:text-primary-800 transition whitespace-nowrap">料金プラン</a>
+                    <a href="#" class="text-sm font-medium text-gray-600 hover:text-primary-800 transition whitespace-nowrap">ナレッジベース</a>
+                    <a href="#" class="text-sm font-medium text-gray-600 hover:text-primary-800 transition whitespace-nowrap">よくある質問</a>
+                </nav>
+
+                <!-- CTA -->
+                <div class="hidden md:flex items-center space-x-3">
+                    <a href="#" class="text-primary-800 bg-white hover:bg-primary-50 text-sm font-medium px-4 py-2.5 rounded transition border border-primary-800 focus:ring-2 focus:ring-offset-2 focus:ring-primary-800">
+                        資料DL
+                    </a>
+                    <a href="#" class="bg-primary-800 hover:bg-primary-900 text-white text-sm font-medium px-4 py-2.5 rounded shadow-sm transition focus:ring-2 focus:ring-offset-2 focus:ring-primary-800">
+                        お問い合わせ
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button class="text-gray-600 hover:text-gray-900 focus:outline-none p-2">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- FV（スピード・多機能フォーカス / パターン2） -->
+    <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden bg-primary-50/50">
+        <div class="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-primary-100/80 to-transparent rounded-l-[100px] -z-10 transform translate-x-1/3"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
+                <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
+                    <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-white border border-primary-200 text-primary-700 text-xs font-bold tracking-widest mb-6 shadow-sm">
+                        <i data-lucide="zap" class="w-4 h-4 mr-2"></i>商品企画・マーケ施策立案AI
+                    </div>
+                    <h1 class="text-4xl tracking-tight font-black text-gray-900 sm:text-5xl md:text-6xl lg:leading-[1.15] mb-6">
+                        売れるアイデア、<br>ここに。
+                    </h1>
+                    <div class="inline-block text-primary-800 font-bold text-lg md:text-xl mb-4">
+                        月額7万円〜 / 初期費用なし
+                    </div>
+                    <p class="text-base text-gray-700 sm:text-lg mb-8 leading-relaxed font-bold border-l-4 border-primary-600 pl-4">
+                        市場調査・インタビュー・施策立案まで一気通貫。<br>
+                        JCB実データ×AIで、根拠あるプランニングを<span class="text-primary-700">最短15分</span>で。
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <a href="#" class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-md shadow-lg text-white bg-primary-800 hover:bg-primary-900 transition w-full sm:w-auto focus:ring-2 focus:ring-offset-2 focus:ring-primary-800 transform hover:-translate-y-0.5">
+                            無料トライアル
+                            <i data-lucide="arrow-right" class="ml-2 -mr-1 h-5 w-5"></i>
+                        </a>
+                        <a href="#" class="inline-flex items-center justify-center px-8 py-4 border border-primary-800 text-base font-bold rounded-md text-primary-800 bg-white hover:bg-primary-50 transition w-full sm:w-auto focus:ring-2 focus:ring-offset-2 focus:ring-primary-800 transform hover:-translate-y-0.5">
+                            資料DL
+                            <i data-lucide="download" class="ml-2 -mr-1 h-5 w-5"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- スピード・多機能UI プレースホルダー -->
+                <div class="mt-16 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
+                    <div class="relative w-full h-[400px]">
+                        <!-- 中央のメインUI（プロンプトと結果リスト） -->
+                        <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-sm rounded-xl shadow-2xl bg-white border border-gray-100 p-4 z-20">
+                            <div class="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100">
+                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                                <span class="text-xs font-bold text-gray-500">Output Generated</span>
+                            </div>
+                            <div class="bg-gray-50 rounded p-3 mb-3 border border-gray-200">
+                                <p class="text-xs font-bold text-primary-800 mb-1">Q. 30代女性向けの新作飲料プロモーション案</p>
+                                <p class="text-[10px] text-gray-500">分析データ: JCB購買履歴 / ペルソナ: 共働き時短志向</p>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="h-6 w-full bg-blue-50 rounded flex items-center px-2 border border-blue-100">
+                                    <i data-lucide="check-square" class="w-3 h-3 text-blue-500 mr-2"></i><div class="h-2 w-3/4 bg-blue-200 rounded"></div>
+                                </div>
+                                <div class="h-6 w-full bg-blue-50 rounded flex items-center px-2 border border-blue-100">
+                                    <i data-lucide="check-square" class="w-3 h-3 text-blue-500 mr-2"></i><div class="h-2 w-1/2 bg-blue-200 rounded"></div>
+                                </div>
+                                <div class="h-6 w-full bg-blue-50 rounded flex items-center px-2 border border-blue-100">
+                                    <i data-lucide="check-square" class="w-3 h-3 text-blue-500 mr-2"></i><div class="h-2 w-2/3 bg-blue-200 rounded"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex bg-white border border-gray-300 rounded-full p-1 shadow-sm">
+                                <div class="flex-1 px-3 py-1.5 text-xs text-gray-400">売れる施策を作って...</div>
+                                <div class="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center text-white"><i data-lucide="send" class="w-3 h-3"></i></div>
+                            </div>
+                        </div>
+
+                        <!-- 周囲に浮かぶ機能アイコン群（多機能感・スピード感の演出） -->
+                        <!-- ペルソナ -->
+                        <div class="absolute right-0 bottom-4 bg-white p-3 rounded-lg shadow-lg border border-gray-100 z-30 transform translate-x-4">
+                            <div class="flex flex-col items-center">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-1">
+                                    <i data-lucide="user" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-700">ペルソナ</span>
+                            </div>
+                        </div>
+                        <!-- 画像・コンテ -->
+                        <div class="absolute left-0 bottom-12 bg-white p-3 rounded-lg shadow-lg border border-gray-100 z-30 transform -translate-x-4">
+                            <div class="flex flex-col items-center">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-1">
+                                    <i data-lucide="image" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-700">商品画像</span>
+                            </div>
+                        </div>
+                         <!-- 動画コンテ -->
+                         <div class="absolute left-8 top-4 bg-white p-3 rounded-lg shadow-lg border border-gray-100 z-10 transform -translate-y-4 -translate-x-4">
+                            <div class="flex flex-col items-center">
+                                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-1">
+                                    <i data-lucide="film" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-700">絵コンテ</span>
+                            </div>
+                        </div>
+                        <!-- コピー -->
+                        <div class="absolute right-4 top-12 bg-white py-2 px-4 rounded-lg shadow-lg border border-gray-100 z-10 transform translate-x-4">
+                            <span class="text-xs font-bold text-gray-700">キャッチコピー</span>
+                        </div>
+
+                        <!-- 背景のスピード感ある装飾 -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-primary-400 to-transparent rounded-full mix-blend-multiply filter blur-3xl opacity-20 -z-10"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ユーザーペイン (スピード・リソース不足の課題へシフト) -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl leading-tight">
+                    「良い企画」を「今すぐ」出せと<br class="md:hidden">言われていませんか？
+                </h2>
+                <p class="mt-4 text-lg text-gray-600">
+                    多忙な実務担当者が直面する、リソースとスピードの壁。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Pain 1 -->
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 relative pt-12 text-center md:text-left">
+                    <div class="absolute -top-6 left-1/2 md:left-8 transform -translate-x-1/2 md:translate-x-0 bg-blue-100 text-blue-600 p-3 rounded-lg">
+                        <i data-lucide="clock-4" class="h-6 w-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">とにかく時間がない</h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">
+                        リサーチから企画立案、クリエイティブ制作まで、やるべき業務が多すぎる。じっくりと顧客と向き合う時間が取れない。
+                    </p>
+                </div>
+                <!-- Pain 2 -->
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 relative pt-12 text-center md:text-left">
+                    <div class="absolute -top-6 left-1/2 md:left-8 transform -translate-x-1/2 md:translate-x-0 bg-red-100 text-red-600 p-3 rounded-lg">
+                        <i data-lucide="layers" class="h-6 w-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">ツールがバラバラで非効率</h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">
+                        分析ツール、アンケート、画像生成AI、テキスト生成AIなど、目的ごとにツールが分断されており、データの連携や出力に手間がかかる。
+                    </p>
+                </div>
+                <!-- Pain 3 -->
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 relative pt-12 text-center md:text-left">
+                    <div class="absolute -top-6 left-1/2 md:left-8 transform -translate-x-1/2 md:translate-x-0 bg-orange-100 text-orange-600 p-3 rounded-lg">
+                        <i data-lucide="alert-circle" class="h-6 w-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">アイデアに「根拠」がない</h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">
+                        急いで作った企画や、一般的な生成AIが出したアイデアは「それっぽい」だけで、なぜ売れるのかを上司にロジカルに説明できない。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BestMoveとは？ -->
+    <section class="py-24 bg-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span class="text-primary-600 font-bold tracking-wider text-sm block mb-2">SOLUTION</span>
+            <h2 class="text-3xl md:text-5xl font-bold text-gray-900 leading-tight mb-8">
+                リサーチからクリエイティブまで。<br>
+                これ一つで、一気に終わる。
+            </h2>
+             <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                BestMoveは、マーケティング業務に必要なすべての機能を統合したプラットフォームです。<br>
+                JCBの巨大な実購買データを基盤に、NECのAIが分析から画像生成までを一気通貫で処理。<br class="hidden md:block">
+                バラバラだった作業を一つにまとめ、圧倒的なスピードで「売れるアイデア」を形にします。
+            </p>
+        </div>
+    </section>
+
+    <!-- 機能 (一気通貫・多機能を強調) -->
+    <section class="py-20 bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold sm:text-4xl">すべての機能が、一つに繋がる。</h2>
+            </div>
+
+            <!-- 機能一覧をグリッドでコンパクトに見せる -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 text-center hover:bg-gray-700 transition">
+                    <i data-lucide="search" class="w-6 h-6 text-primary-400 mx-auto mb-3"></i>
+                    <h4 class="font-bold text-sm mb-2">市場・顧客分析</h4>
+                </div>
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 text-center hover:bg-gray-700 transition">
+                    <i data-lucide="users" class="w-6 h-6 text-primary-400 mx-auto mb-3"></i>
+                    <h4 class="font-bold text-sm mb-2">ペルソナ生成</h4>
+                </div>
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 text-center hover:bg-gray-700 transition">
+                    <i data-lucide="mic" class="w-6 h-6 text-primary-400 mx-auto mb-3"></i>
+                    <h4 class="font-bold text-sm mb-2">AIインタビュー</h4>
+                </div>
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 text-center hover:bg-gray-700 transition">
+                    <i data-lucide="lightbulb" class="w-6 h-6 text-primary-400 mx-auto mb-3"></i>
+                    <h4 class="font-bold text-sm mb-2">施策・企画立案</h4>
+                </div>
+                 <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 text-center hover:bg-gray-700 transition">
+                    <i data-lucide="type" class="w-6 h-6 text-primary-400 mx-auto mb-3"></i>
+                    <h4 class="font-bold text-sm mb-2">コピー生成</h4>
+                </div>
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 text-center hover:bg-gray-700 transition">
+                    <i data-lucide="image" class="w-6 h-6 text-primary-400 mx-auto mb-3"></i>
+                    <h4 class="font-bold text-sm mb-2">画像・コンテ生成</h4>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <a href="#" class="inline-flex items-center justify-center px-6 py-3 border border-gray-600 text-base font-medium rounded-md text-white hover:bg-gray-800 transition">
+                    機能一覧を見る
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 中間CTA（トライアル・お問い合わせ） -->
+    <section class="py-16 bg-primary-50 text-center border-y border-primary-100">
+        <div class="max-w-4xl mx-auto px-4">
+             <!-- 2部構成：上部 -->
+             <div class="mb-12 pb-12 border-b border-primary-200">
+                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-8">驚きのAI技術を体験してみませんか？</h2>
+                 <a href="#" class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-md shadow-sm text-white bg-primary-800 hover:bg-primary-900 transition focus:ring-2 focus:ring-offset-2 focus:ring-primary-800">
+                    無料トライアルを申し込む
+                    <i data-lucide="arrow-right" class="ml-2 -mr-1 h-5 w-5"></i>
+                </a>
+             </div>
+             <!-- 2部構成：下部 -->
+             <div>
+                 <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-8">詳しくはお問い合わせください。</h2>
+                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="#" class="inline-flex items-center justify-center px-8 py-4 border border-primary-800 text-base font-bold rounded-md text-primary-800 bg-white hover:bg-primary-100 transition w-full sm:w-auto focus:ring-2 focus:ring-offset-2 focus:ring-primary-800">
+                        資料DL
+                        <i data-lucide="download" class="ml-2 -mr-1 h-5 w-5"></i>
+                    </a>
+                    <a href="#" class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 transition w-full sm:w-auto focus:ring-2 focus:ring-offset-2 focus:ring-gray-800">
+                        お問い合わせ
+                        <i data-lucide="mail" class="ml-2 -mr-1 h-5 w-5"></i>
+                    </a>
+                 </div>
+             </div>
+        </div>
+    </section>
+
+    <!-- 特徴・選ばれる理由 -->
+    <section class="py-24 bg-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900">生成AI×実データで生み出す<br class="md:hidden">最善の一手</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary-50 text-primary-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="cpu" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">世界に誇るNECのAI技術</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        ハルシネーション（嘘の生成）を抑制するNEC独自の技術。精度の高い対話とクリエイティビティを両立します。
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary-50 text-primary-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="database" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">実データを基にした提案</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        JCBが保有する実購買データを活用。「推測」や「建前」ではなく、実際の決済事実から顧客の解像度を上げます。
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary-50 text-primary-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="shield-check" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">安心安全のセキュリティ</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        入力したデータが外部AIの学習に使われることはありません。企業が安心して利用できる堅牢な環境です。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 導入事例 or 活用シーン -->
+    <section class="py-20 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+             <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900">こんなシーンで利用されています</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-md transition">
+                    <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full mb-3 inline-block">食品メーカー</span>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">伊藤園 様</h3>
+                    <p class="text-gray-600 text-sm">新商品のコンセプト立案におけるターゲットニーズの抽出と壁打ちに活用。</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-md transition">
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full mb-3 inline-block">BtoB サービス</span>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">株式会社NECライベックス 様</h3>
+                     <p class="text-gray-600 text-sm">データに基づいた説得力のある提案資料の作成や、営業現場での顧客理解に活用。</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-md transition">
+                    <span class="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full mb-3 inline-block">小売・流通</span>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">株式会社アルディス 様</h3>
+                     <p class="text-gray-600 text-sm">店舗プロモーションのマンネリ化を打破するための、新しいインサイト発掘に活用。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 料金プラン -->
+    <section class="py-24 bg-white border-y border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8">料金プラン</h2>
+            <div class="max-w-lg mx-auto bg-white rounded-2xl p-8 border-2 border-primary-100 shadow-xl relative">
+                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-primary-800 text-white px-4 py-1 rounded-full text-sm font-bold shadow-md">
+                    Standard
+                </div>
+                <div class="pt-4">
+                    <p class="text-gray-500 font-medium mb-2">初期費用 <span class="text-xl font-bold text-gray-900 ml-2">0円</span></p>
+                    <p class="text-gray-500 font-medium mb-2 mt-6">月額（1アカウント）</p>
+                    <div class="flex items-baseline justify-center text-primary-800 mb-8">
+                        <span class="text-5xl font-black">70,000</span>
+                        <span class="text-xl font-bold ml-1">円〜</span>
+                    </div>
+                </div>
+                <a href="#" class="text-primary-800 font-bold hover:underline">プラン詳細・機能一覧を見る</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 導入までの流れ -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                 <h2 class="text-3xl font-bold text-gray-900">導入までの流れ</h2>
+            </div>
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-center relative">
+                    <!-- Connecting line -->
+                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -z-10 transform -translate-y-1/2"></div>
+                    
+                    <div class="bg-white px-4 py-6 text-center w-full md:w-1/3 z-10 mb-8 md:mb-0 rounded-lg shadow-sm border border-gray-100 mx-2">
+                        <div class="w-12 h-12 bg-primary-100 text-primary-800 rounded-full flex items-center justify-center mx-auto mb-3 font-bold">1</div>
+                        <h3 class="text-base font-bold text-gray-900">お申込み<br><span class="text-xs font-normal text-gray-500">（無料）</span></h3>
+                    </div>
+                    
+                    <div class="bg-white px-4 py-6 text-center w-full md:w-1/3 z-10 mb-8 md:mb-0 rounded-lg shadow-sm border border-gray-100 mx-2">
+                        <div class="w-12 h-12 bg-primary-100 text-primary-800 rounded-full flex items-center justify-center mx-auto mb-3 font-bold">2</div>
+                        <h3 class="text-base font-bold text-gray-900">トライアル<br><span class="text-xs font-normal text-gray-500">（無料）</span></h3>
+                    </div>
+                    
+                    <div class="bg-primary-800 px-4 py-6 text-center w-full md:w-1/3 z-10 rounded-lg shadow-md mx-2">
+                        <div class="w-12 h-12 bg-white text-primary-800 rounded-full flex items-center justify-center mx-auto mb-3 font-bold">3</div>
+                        <h3 class="text-base font-bold text-white">ご契約</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-20 bg-white border-t border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+             <div class="text-center mb-12">
+                 <h2 class="text-3xl font-bold text-gray-900">よくある質問</h2>
+            </div>
+            <div class="space-y-4">
+                <details class="bg-gray-50 p-5 rounded-lg border border-gray-100 group">
+                    <summary class="font-bold text-gray-900 cursor-pointer flex justify-between items-center list-none [&::-webkit-details-marker]:hidden">
+                        <h3 class="text-base">自社データと連携することは可能ですか？</h3>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <p class="mt-4 text-sm text-gray-600 leading-relaxed">はい、可能です。貴社の顧客データ等と安全に連携し、より精度の高い独自の分析を行うオプションをご用意しております。</p>
+                </details>
+                <details class="bg-gray-50 p-5 rounded-lg border border-gray-100 group">
+                    <summary class="font-bold text-gray-900 cursor-pointer flex justify-between items-center list-none [&::-webkit-details-marker]:hidden">
+                        <h3 class="text-base">最低の契約期間はありますか？</h3>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <p class="mt-4 text-sm text-gray-600 leading-relaxed">基本プランの場合、最低契約期間は1年間とさせていただいております。</p>
+                </details>
+                <details class="bg-gray-50 p-5 rounded-lg border border-gray-100 group">
+                    <summary class="font-bold text-gray-900 cursor-pointer flex justify-between items-center list-none [&::-webkit-details-marker]:hidden">
+                        <h3 class="text-base">一般的な生成AIとの違いはなんですか？</h3>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <p class="mt-4 text-sm text-gray-600 leading-relaxed">最大のメリットは「根拠となるデータの質」です。JCBの実購買データをベースにしているため、「実際に買っている人」の行動履歴に基づく確かなインサイトが得られます。</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- 最下部CTA（トライアル） -->
+    <section class="py-24 bg-primary-800 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <svg class="absolute left-0 top-0 h-full w-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+                <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="currentColor" stroke-width="0.5" />
+                <path d="M0,100 Q50,0 100,100" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center text-white">
+            <h2 class="text-3xl font-bold sm:text-4xl mb-6">
+                まずは無料体験をお試しください
+            </h2>
+            <p class="text-lg text-primary-100 mb-10">
+                初期費用0円、月額7万円〜。<br>
+                1000万人の本音に触れ、あなたのビジネスを加速させましょう。
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#" class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-md text-primary-900 bg-white hover:bg-gray-50 shadow-lg transition w-full sm:w-auto transform hover:-translate-y-0.5">
+                    無料で体験してみる
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                <div class="col-span-2 md:col-span-1">
+                    <div class="mb-4">
+                        <img src="BM_logo.png" alt="BestMove ロゴ" class="h-8 md:h-10 w-auto object-contain">
+                    </div>
+                    <p class="text-gray-400 text-sm">1,000万人の本音から、<br>売れる施策を15分で。</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 text-sm">製品情報</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">トップページ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">BestMoveの秘密</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">機能</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">機能詳細</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">料金プラン</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 text-sm">リソース</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">契約までの流れ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">事例</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">ナレッジベース</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">よくある質問</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 text-sm">サポート</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">無料トライアル申込</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">資料ダウンロード</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">お問い合わせ</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+                <p>&copy; NEC Corporation. All Rights Reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition">プライバシーポリシー</a>
+                    <a href="#" class="hover:text-white transition">利用規約</a>
+                    <a href="#" class="hover:text-white transition">運営会社</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
